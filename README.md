@@ -49,6 +49,8 @@ The `etc` directory has the typical LDM configuration files:
 - scour.conf
 - pqact.conf
 
+This implementation requires an `include` file in `ldmd.conf` to define configurations with a host, domain name or IP.  This is done to keep those IPs secret at this time.
+
 ### Running LDM
 
     docker-compose up -d ldm
