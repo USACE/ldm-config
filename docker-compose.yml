@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  ldm:
+    image: unidata/ldm-docker:6.13.13
+    container_name: ldm
+    # restart: always
+    volumes:
+      # change defaults to your liking
+      - ./cron/:/var/spool/cron/
+      - ./data/:/home/ldm/var/data/
+      - ./etc/:/home/ldm/etc/
+      - ./logs/:/home/ldm/var/logs/
+      - ./queues/:/home/ldm/var/queues/
+      - ./data/:/data/
+    ports:
+      - "388:388"
+    ulimits:
+      nofile:
+        soft: 1024
+        hard: 1024
+    env_file: 
+      - "compose.env"
