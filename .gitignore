@@ -1,0 +1,10 @@
+# Ignore LDM files and the queue
+*.pq
+logs/
+queues/
+data/
+*include
+*state
+
+# Stop ignoring
+!compose.env
