@@ -13,6 +13,7 @@ services:
       - ./logs/:/home/ldm/var/logs/
       - ./queues/:/home/ldm/var/queues/
       - ./data/:/data/
+      - ./bin/:/home/ldm/local/bin/
     ports:
       - "388:388"
     ulimits:
