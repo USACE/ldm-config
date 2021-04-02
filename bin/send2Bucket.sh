@@ -1,19 +1,27 @@
 #!/bin/bash
 
-# Need to know the s3 bucket root path
-# Need to know the s3 level 1 directory "cumulus"
-# Need to know the s3 level 2 directory "product name with some modification"
-# Need to know the s3 level 3 directory "ldm"
-# Need to know the s3 level 4 directory "CONUS, CARIB, GUAM, etc"
+# Arguments are:
+#   $1 -- product source as FQPN
+#   $2 -- destination built with S3ROOT environment variable
 
-# product name
-# MRMS_MultiSensor_QPE_01H_Pass1_00.00_yyyymmdd-hhmmss.grib2.gz
+# product name comes from the product source FQPN
 
-# product location
-# s3://corpsmap-data-incoming/cumulus/ncep_mrms_v12_MultiSensor_QPE_01H_Pass1
+# send2Bucket.sh <source> <s3root>/<s3target>/<product>
+# aws s3 cp <source> <target>
 
-function usage(){
-    echo "Argument 1 is the path to the s3 bucket"
-    echo "Argument 2 is the product FQPN"
-}
+if [ $# -eq 2 ]; then
+    # PRODUCT NAME FROM PQACT
+    product_name=$(basename $1)
 
+    if [ -f "$1" ]; then
+        aws s3 cp $1 $S3ROOT/$2/$product_name
+    else
+        printf "File '%s' does not exist\n" $1
+    fi
+else
+    printf "Script requires two arguments, <source> and <s3target>\n"
+    exit 1
+fi
+
+# make sure to exit
+exit 0
