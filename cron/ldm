@@ -8,6 +8,9 @@ MAILTO=""
 # Rotate logs
 0 0 * * * bash -l -c 'ldmadmin newlog'
 
+# Rotate logs
+0 0 * * * bash -l -c 'ldmadmin newlog -l /home/ldm/var/logs/pqact.log'
+
 # performance metrics
 0,5,10,15,20,25,30,35,40,45,50,55 * * * * bash -l -c 'ldmadmin addmetrics'
 0 0 * * 0 bash -l -c 'ldmadmin newmetrics'
