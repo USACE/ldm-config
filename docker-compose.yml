@@ -2,7 +2,9 @@ version: '3'
 
 services:
   ldm:
-    image: unidata/ldm-docker:6.13.13
+    build:
+      context: .
+    image: ldm-docker:6.13.13
     container_name: ldm
     # restart: always
     volumes:
@@ -21,4 +23,4 @@ services:
         soft: 1024
         hard: 1024
     env_file: 
-      - "compose.env"
+      - compose.env
