@@ -24,5 +24,3 @@ services:
         hard: 1024
     env_file: 
       - compose.env
-      - ${HOME}/.aws/credentials
-      - ${HOME}/.aws/config
