@@ -6,7 +6,17 @@ data/
 data-incoming/
 *include
 *state
+
+# Ignore environment variables
 .env
+env
+ENV
+
+# Ignore any AWS
+.aws/
+aws/
+AWS/
+
 
 # Stop ignoring
 !compose.env
