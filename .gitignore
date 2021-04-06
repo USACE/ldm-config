@@ -3,6 +3,7 @@
 logs/
 queues/
 data/
+data-incoming/
 *include
 *state
 

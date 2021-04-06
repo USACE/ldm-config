@@ -97,7 +97,7 @@ COPY util $HOME/util
 # Set the path
 ##
 
-ENV PATH $HOME/bin:$PATH
+ENV PATH $HOME/bin:$HOME/local/bin:$PATH
 
 ##
 # Create ldm directories conistent with registry.xml

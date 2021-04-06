@@ -1,27 +1,51 @@
 #!/bin/bash
+function usage(){
+    printf "\n$(basename $0) [OPTIONS]\n"
+    cat $0 | grep -E ".\).+# --.*$" | grep -v "cat"
+    exit 0
+}
 
-# Arguments are:
-#   $1 -- product source as FQPN
-#   $2 -- destination built with S3ROOT environment variable
+# Check no arguments
+[ $# -eq 0 ] \
+    && printf "No arguments provided and exiting\n"
 
-# product name comes from the product source FQPN
 
-# send2Bucket.sh <source> <s3root>/<s3target>/<product>
-# aws s3 cp <source> <target>
+: ${DATALOAD_S3_ROOT:?"AWS S3 root path not defined; Exiting Script"}
 
-if [ $# -eq 2 ]; then
-    # PRODUCT NAME FROM PQACT
-    product_name=$(basename $1)
+while getopts "f:l:p:u" option; do
+    case "$option" in
+        f)  # -- Fully Qualified Path Name to file
+            fqpn=${OPTARG}
+            ;;
+        l)  # -- location (CONUS, CARIB, HAWAII, etc)
+            location=${OPTARG}
+            ;;
+        p)  # -- Project name (instrumentation, cumulus, etc)
+            project=${OPTARG}
+            ;;
+        u)  # -- Print usage message
+            usage
+            ;;
+    esac
+done
+shift $(($OPTIND - 1))
 
-    if [ -f "$1" ]; then
-        aws s3 cp $1 $S3ROOT/$2/$product_name
-    else
-        printf "File '%s' does not exist\n" $1
-    fi
-else
-    printf "Script requires two arguments, <source> and <s3target>\n"
-    exit 1
-fi
+[ -z $fqpn ] \
+    && printf "Filename not defined and exiting\n" \
+    && usage
+[ -z $project ] \
+    && printf "Project not defined and exiting\n" \
+    && usage
+[ -z $location ] \
+    && printf "Location not defined and exiting\n" \
+    && usage
+
+filename=$(basename $fqpn)
+s3_destination="$DATALOAD_S3_ROOT/$project/ldm/$location/$filename"
+
+[ -z $AWS_ENDPOINT_URL ] \
+    && aws s3 cp "$fqpn" "$s3_destination" \
+    || aws s3 cp --endpoint-url "$AWS_ENDPOINT_URL" "$fqpn" "$s3_destination"
 
 # make sure to exit
 exit 0
