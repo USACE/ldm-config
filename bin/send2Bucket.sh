@@ -1,7 +1,7 @@
 #!/bin/bash
 function usage(){
     printf "\n$(basename $0) [OPTIONS]\n"
-    cat $0 | grep -E ".\).+# --.*$" | grep -v "cat"
+    cat $0 | grep -E "[a-z]\)  # --.*$"
     exit 0
 }
 
