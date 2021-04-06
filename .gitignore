@@ -6,6 +6,7 @@ data/
 data-incoming/
 *include
 *state
+.env
 
 # Stop ignoring
 !compose.env
