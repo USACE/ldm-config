@@ -15,7 +15,7 @@
     </ntpdate>
   </check-time>
   <log>
-    <count>7</count>
+    <count>4</count>
     <file>/home/ldm/var/logs/ldmd.log</file>
     <rotate>1</rotate>
   </log>

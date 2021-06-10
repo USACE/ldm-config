@@ -14,10 +14,20 @@ RUN yum -y update yum
 
 RUN yum install -y wget pax gcc libxml2-devel make libpng-devel rsyslog perl \
     zlib-devel bzip2 git curl sudo cronie bc net-tools man gnuplot tcl \
-    libstdc++-static \
-    python3
+    libstdc++-static openssl-devel
 
-RUN pip3 install awscli
+# Install Python
+COPY ./requirements.txt /requirements.txt
+RUN wget https://www.python.org/ftp/python/3.8.8/Python-3.8.8.tgz \
+    && tar xvf Python-3.8.8.tgz; rm -f Python-3.8.8.tgz\
+    && cd Python-3.8.8 \
+    && ./configure --enable-optimizations \
+    && sudo make altinstall \
+    && pip3.8 install -r /requirements.txt
+
+
+
+# RUN pip3 install awscli
 
 ###
 # gosu is a non-optimal way to deal with the mismatches between Unix user and
