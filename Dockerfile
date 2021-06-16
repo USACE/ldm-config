@@ -25,10 +25,6 @@ RUN wget https://www.python.org/ftp/python/3.8.8/Python-3.8.8.tgz \
     && sudo make altinstall \
     && pip3.8 install -r /requirements.txt
 
-
-
-# RUN pip3 install awscli
-
 ###
 # gosu is a non-optimal way to deal with the mismatches between Unix user and
 # group IDs inside versus outside the container resulting in permission
