@@ -19,5 +19,5 @@ MAILTO=""
 0,15,30,45 * * * * bash -l -c 'ldmadmin check >/dev/null'
 
 # Refresh the .appkey files
-0 0 * * * bash -l -c '/home/ldm/local/bin/appkey.py stable'
-0 0 * * * bash -l -c '/home/ldm/local/bin/appkey.py develop'
+0 0 * * * . /home/ldm/.bashrc; bash -l -c '/home/ldm/local/bin/appkey.py stable'
+0 0 * * * . /home/ldm/.bashrc; bash -l -c '/home/ldm/local/bin/appkey.py develop'

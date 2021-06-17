@@ -16,7 +16,7 @@ services:
     #   - AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
     #   - AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
     #   - AWS_DEFAULT_REGION=us-east-1
-    #   - AWS_S3_ENDPOINT=http://minio:9000
+    #   - LDM_AWS_S3_ENDPOINT=http://minio:9000
     #   - CUMULUS_HOST_DEVELOP=http://cumulus-api_api_1
     #   - CUMULUS_HOST_STABLE=http://cumulus-api_api_1
     #   - APPLICATION_KEY=appkey
@@ -37,6 +37,7 @@ services:
         hard: 1024
     env_file: 
       - compose.env
+      - .env
   # minio:
   #   image: minio/minio
   #   environment:

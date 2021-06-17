@@ -11,6 +11,21 @@ export PATH=/home/ldm/bin:$PATH
 $(python /home/ldm/local/bin/appkey.py stable)
 $(python /home/ldm/local/bin/appkey.py develop)
 
+# Get the environment variables and put them in .bashrc for crontab
+echo > /home/ldm/.bashrc
+for row in $(env)
+do
+    SAVEIFS=$IFS
+    IFS="="
+    read key val <<< "$row"
+    IFS=$SAVEIFS
+    if [[ "$key" == "AWS"* ]]
+    then
+        echo "export ${key}=${val}" >> /home/ldm/.bashrc
+    fi
+done
+
+
 trap "echo TRAPed signal" HUP INT QUIT KILL TERM
 
 /usr/sbin/crond
