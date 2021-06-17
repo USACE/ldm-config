@@ -14,16 +14,12 @@ RUN yum -y update yum
 
 RUN yum install -y wget pax gcc libxml2-devel make libpng-devel rsyslog perl \
     zlib-devel bzip2 git curl sudo cronie bc net-tools man gnuplot tcl \
-    libstdc++-static openssl-devel
+    libstdc++-static openssl-devel python3
 
-# Install Python
-COPY ./requirements.txt /requirements.txt
-RUN wget https://www.python.org/ftp/python/3.8.8/Python-3.8.8.tgz \
-    && tar xvf Python-3.8.8.tgz; rm -f Python-3.8.8.tgz \
-    && cd Python-3.8.8 \
-    && ./configure --enable-optimizations \
-    && sudo make altinstall \
-    && pip3.8 install -r /requirements.txt
+# Set Python3 as the default
+RUN alternatives --install /usr/bin/python python /usr/bin/python2 50 \
+    && alternatives --install /usr/bin/python python /usr/bin/python3.6 60 \
+    && alternatives --auto python
 
 ###
 # gosu is a non-optimal way to deal with the mismatches between Unix user and
@@ -67,6 +63,14 @@ RUN mkdir -p /home/ldm
 ENV HOME /home/ldm
 
 WORKDIR $HOME
+
+# Copy over all the files we need
+COPY ./requirements.txt /requirements.txt
+COPY ./etc/ $HOME/etc/
+COPY ./bin/ $HOME/local/bin/
+
+# Install Python requirements
+RUN pip3 install -r /requirements.txt
 
 # So crond can run as user ldm
 RUN chmod +s /sbin/crond
@@ -130,7 +134,8 @@ COPY README.md $HOME/
 
 COPY entrypoint.sh /
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x $HOME/local/bin/* \
+    && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 

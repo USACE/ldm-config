@@ -1,4 +1,4 @@
-#!/Python-3.8.8/python
+#!/bin/env python
 
 import os
 import sys
@@ -123,8 +123,19 @@ def main() -> None:
     else:
         s3 = boto3.resource("s3")
 
-    application_key = os.environ.get("APPLICATION_KEY")
     for bucket in buckets:
+        # Need to get the application key based on the bucket
+        home = os.path.expanduser("~")
+        dot_appkey = os.path.join(home, f".{bucket}")
+        
+        # Try to read the dot (.) file for the bucket with an appkey but
+        # continue if it fails.
+        try:
+            with open(dot_appkey, "r") as f: application_key = f.read()
+        except FileNotFoundError as ex:
+            logger.warning(ex)
+            continue
+
         key = "/".join([root_key, acquire_type, filename])
         try:
             s3.meta.client.upload_file(
@@ -134,6 +145,7 @@ def main() -> None:
             )
             api_url = cumulus_url[bucket]
             acquirable_id = get_acquirable_id(api_url, acquire_type)
+            logger.debug(f"Acquirable ID: {acquirable_id}")
             if acquirable_id is not None:
                 resp = notify_acquirablefile(
                     api_url=api_url,
