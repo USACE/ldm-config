@@ -7,6 +7,7 @@ import botocore
 from botocore.exceptions import NoCredentialsError
 import argparse
 import logging
+import logging.handlers
 import requests
 from urllib.parse import urlparse, urlunparse
 from requests.models import CaseInsensitiveDict, Response
@@ -15,9 +16,9 @@ from dataclasses import dataclass
 
 @dataclass
 class acquirable:
-    id: str
-    name: str
-    slug: str
+    id: str = None
+    name: str = None
+    slug: str = None
 
 # Root key
 root_key = "cumulus/acquirables"
@@ -32,11 +33,18 @@ cumulus_url = {
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 sh = logging.StreamHandler()
+rfh = logging.handlers.RotatingFileHandler(
+    filename="/home/ldm/var/logs/acq_grids.log",
+    maxBytes=500000,
+    backupCount=4
+)
+
 formatter = formatter = logging.Formatter('%(asctime)s.%(msecs)03d - ' +
-        '%(name)s:%(funcName)15s - %(levelname)-5s - %(message)s',
+        '%(name)10s:%(funcName)20s - %(levelname)-5s - %(message)s',
         '%Y-%m-%dT%H:%M:%S')
 sh.setFormatter(formatter)
-logger.addHandler(sh)
+rfh.setFormatter(formatter)
+logger.addHandler(rfh)
 
 # Create the argument parser
 parser = argparse.ArgumentParser()
@@ -52,31 +60,23 @@ parser.add_argument(
 )
 
 def get_acquirable_id(host: str, slug: str) -> str:
-    url_parse = urlparse(host)
-    url = urlunparse((
-        url_parse.scheme,
-        url_parse.netloc,
-        "acquirables",
-        "",
-        "",
-        ""
-    ))
 
-    headers = CaseInsensitiveDict()
-    headers["content-type"] = "application/json; charset=utf-8"
-    headers["accept"] = "application/json"
+    _timeout = 2
+    _acquirable = acquirable()
+    _url = host + "/acquirables"
 
-    with requests.Session() as s:
-        s.headers = headers
-        resp = s.get(url=url, headers=headers)
+    try:
+        resp = requests.get(url=_url, timeout=_timeout)
 
-    if resp.status_code == 200:
-        for acquire in resp.json():
-            _acquirable = acquirable(**acquire)
-            if _acquirable.slug == slug:
-                return _acquirable.id
-    else:
-        return None
+        if resp.status_code == 200:
+            for acquire in resp.json():
+                _acquirable = acquirable(**acquire)
+                if _acquirable.slug == slug:
+                    return _acquirable.id
+    except requests.exceptions.ConnectTimeout as ex:
+        logger.error(f"Connection to {host} timed out. connect timeout={_timeout}")
+
+    return _acquirable.id
 
 def notify_acquirablefile(api_url: str, acquirable_id: str, datetime: datetime, key: str, query: str) -> Response:
     dtf = "%Y-%m-%dT%H:%M:%SZ"
@@ -123,9 +123,11 @@ def main() -> None:
     else:
         s3 = boto3.resource("s3")
 
+    logger.info(f"Start processing file '{filename}' (acquirable {acquire_type})")
+    home = os.path.expanduser("~")
     for bucket in buckets:
+        logger.info(f"S3 Bucket: {bucket}")
         # Need to get the application key based on the bucket
-        home = os.path.expanduser("~")
         dot_appkey = os.path.join(home, f".{bucket}")
         
         # Try to read the dot (.) file for the bucket with an appkey but
@@ -143,9 +145,10 @@ def main() -> None:
                 bucket,
                 key
             )
+            logger.info(f"S3 upload file: {filename}")
             api_url = cumulus_url[bucket]
             acquirable_id = get_acquirable_id(api_url, acquire_type)
-            logger.debug(f"Acquirable ID: {acquirable_id}")
+            logger.info(f"Acquirable ID: {acquirable_id} ({acquire_type})")
             if acquirable_id is not None:
                 resp = notify_acquirablefile(
                     api_url=api_url,
@@ -155,7 +158,9 @@ def main() -> None:
                     query=f"key={application_key}"
                 )
                 logger.info(f"Response status code: {resp.status_code}")
-
+                logger.debug(f"Respons JSON: {resp.json()}")
+            else:
+                logger.warning(f"Acquirable ID returned '{acquirable_id}'")
         except botocore.exceptions.ParamValidationError as ex:
             logger.warning(f"Invalid bucket name - {bucket}")
             logger.warning("Program exiting!")
