@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 # checking to see if LDM isrunning
 # if not running, $?=0, then messages are sent to stderr and ldm started

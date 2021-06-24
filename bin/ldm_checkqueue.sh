@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/bash
 #
 # Test product queue for corruption and recreate as necessary
 #
