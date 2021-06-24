@@ -21,3 +21,7 @@ MAILTO=""
 # Refresh the .appkey files
 0 0 * * * . /home/ldm/.bashrc; bash -l -c '/home/ldm/local/bin/appkey.py stable'
 0 0 * * * . /home/ldm/.bashrc; bash -l -c '/home/ldm/local/bin/appkey.py develop'
+
+# Checking the queue and is ldm is running
+5 * * * * . /home/ldm/.bashrc; bash -l -c '/home/ldm/local/bin/ldm_isrunning.sh'
+5 * * * * . /home/ldm/.bashrc; bash -l -c '/home/ldm/local/bin/ldm_checkqueue.sh'
